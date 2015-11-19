@@ -1,4 +1,4 @@
-function B=my_load_vector_assembler(x)
+function B=my_load_vector_assembler(x, low, high, f)
 %
 % Returns the assembled load vector b.
 % Input is a vector x of node coords.
@@ -9,7 +9,5 @@ for i = 1:N
 	n = [i i+1];
 	B(n) = B(n) + [f(x(i)); f(x(i+1))]*h/2;
 end
-
-function y=f(x)
-  y=2;
-  y=exp(-1000*(x-0.5)^2);
+B(1) = low;
+B(end) = high;
