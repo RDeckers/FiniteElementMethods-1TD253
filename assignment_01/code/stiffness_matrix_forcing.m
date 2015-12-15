@@ -13,6 +13,8 @@ n = [i i+1];
 % nodes
 A(n,n) = A(n,n) + [1 -1; -1 1]/h; % assemble element stiffness
 end
-A(1,1) = low*1.e+6; % adjust for BC
-A(N+1,N+1) = high*1.e+6;
-A=sparse(A); %Vrrrrrrooooom!
+A(1,1) = 1.e+6; % adjust for BC
+%A(1,2) = A(1,2)*1.e+6; % adjust for BC
+A(N+1,N+1) = 1.e+6;
+%A(N+1,N) = -1.e+6;
+%A=sparse(A); %Vrrrrrrooooom!

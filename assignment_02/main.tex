@@ -1,0 +1,20 @@
+\input{../documents-common/preamble.tex}
+\usepackage{listings} % Include the listings-package
+\begin{document}
+\maketitle[Finite Element Methods]{Assignment 2}
+
+\section{Problem 1}
+Start with
+\begin{align}
+  -\int_\Omega \left[\nabla\cdot\left(\kappa\nabla u\right)\right]v\,\d\vec x &= \int_\Omega fv\,\d\vec x\nn
+\end{align}
+And then use Green's Theorem (specifically, equation 4.3 from the book) and simplify to find:
+\begin{align}
+  \int_\Omega \kappa \nabla u \cdot \nabla v\,\d\vec x - \int_{\partial\Omega}\vec n\cdot\left(\kappa\nabla u\right)v\,\d s &= \int_\Omega fv \,\d\vec x\nn
+  \int_\Omega \kappa \nabla u \cdot \nabla v \,\d\vec x - \int_{\partial\Omega}\gamma\left(g-u\right)v\,\d s &= \int_\Omega fv \,\d\vec x\nn
+  \int_\Omega \kappa \nabla u \cdot \nabla v\,\d\vec x + \int_{\partial\Omega}\gamma uv\,\d s &= \int_\Omega fv\,\d\vec x + \int_{\partial\Omega}\gamma gv\,\d s \nn
+\end{align}
+
+\section{Problem 2}
+
+\end{document}
