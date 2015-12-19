@@ -3,12 +3,12 @@ function [order] = problem_03()
   Norm = [];
   %loop over different grid sizes
   %in logspace
-  for j = 0.5:0.1:6.5 
+  for j = 0.5:	1:6.5 
     dx = 2^-j;
     [p,e,t] = create_mesh(dx);
     [A,R, b, r] = assemble(p, e, t, 1e6, @f_sin, @g_const, @kappa);
     z = solve(A, R, b, r);
-    for i = 1:size(p,2)
+    for i = 1:size(p, 2)
       x = p(1,i);
       y = p(2,i);
       z(i) = abs(z(i)-  exact(x,y));

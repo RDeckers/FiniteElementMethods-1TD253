@@ -1,5 +1,5 @@
-function [ AK, bK ] = create_AK_bK( x, y, f)
-  %x, y are triplets of vertices, f is a function handle.
+function [ AK, bK ] = create_AK_bK( x, y, f, kappa)
+  %x, y are triplets of vertices, f and kappa are funciton handles.
   area_K = polyarea(x,y);
   %abc matrix
   Z = [ones(1,3); x; y].'; 
@@ -11,7 +11,7 @@ function [ AK, bK ] = create_AK_bK( x, y, f)
   x_c = mean(x);
   y_c = mean(y);
   %evaluate the given expression for AK and bK
-  %compute f at the centroid
-  AK = (b.'*b+c.'*c)*area_K;
+  %and compute kappa and f at the centroid
+  AK = (b.'*b+c.'*c)*kappa(x_c, y_c)*area_K;
   bK = f(x_c, y_c)*area_K/3;
 end
