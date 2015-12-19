@@ -1,6 +1,6 @@
 function [  ] = part_02(  )
   h = 1/16;
-  dt = 0.5*h;
+  dt = 0.5*h/(2*pi);
   [p,e,t] = create_mesh(h);
   size(p)
   u = initialize(p);
@@ -9,7 +9,7 @@ function [  ] = part_02(  )
   figure(1)
   make_plot(p,e,t, u)
   figure(2)
-  for i = dt:dt:1
+  for i = dt:dt:1+dt/2
     u = Fp\(Fm*u+b);
     i
   end
@@ -64,11 +64,11 @@ function [e] = compute_delta(points, solution)
 end
 
 function [  ] = make_plot( p, e, t, z )
-  pdeplot(p,e,t, 'xydata', z, 'mesh', 'on');
+  pdeplot(p,e,t, 'xydata', z, 'zdata', z, 'mesh', 'on');
 end
 
 function [ x_out, y_out ] = beta_field( x, y )
- x_out = -y;
- y_out = x;
+ x_out = -2*pi*y;
+ y_out = 2*pi*x;
 end
 

@@ -14,7 +14,7 @@ for K = 1:size(t,2); % loop over the triangles
   
   [AK, bK, BK] = create_AK_bK2(x,y, epsilon, f, beta);
   Fp(nodes,nodes) = Fp(nodes,nodes) + BK+delta_t/2*AK;
-  Fm(nodes,nodes) = Fm(nodes,nodes) - BK-delta_t/2*AK;
+  Fm(nodes,nodes) = Fm(nodes,nodes) + BK-delta_t/2*AK;
   % add AK(i,j), i,j=1,2,3, to A(nodes(i),nodes(j))
   b(nodes) = b(nodes) + delta_t/2*bK;
   
