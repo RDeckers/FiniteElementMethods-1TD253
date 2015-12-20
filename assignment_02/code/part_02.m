@@ -4,7 +4,7 @@ function [  ] = part_02(  )
   [p,e,t] = create_mesh(h);
   size(p)
   u = initialize(p);
-  [Fp, Fm, b] = assemble_2(p, e, t, @(x,y) 0, @beta_field, 0, dt);
+  [Fp, Fm, b] = assemble_2(p, e, t, @(x,y) 0, @beta_field, 0.1, dt);
 
   figure(1)
   make_plot(p,e,t, u)
@@ -14,6 +14,13 @@ function [  ] = part_02(  )
     i
   end
   make_plot(p,e,t, u)
+  F = pdeInterpolant(p,t,u);
+  interp = @(x,y) evaluate(F,[x;y]);
+  figure(3)
+  interp(2,3)
+  interp(1,-0)
+  ezcontourf(interp, [-1 1 -1 1])
+  axis equal
 end
 
 function [ z ] = f( x, y )
@@ -64,7 +71,7 @@ function [e] = compute_delta(points, solution)
 end
 
 function [  ] = make_plot( p, e, t, z )
-  pdeplot(p,e,t, 'xydata', z, 'zdata', z, 'mesh', 'on');
+  pdeplot(p,e,t, 'xydata', z, 'mesh', 'on');
 end
 
 function [ x_out, y_out ] = beta_field( x, y )
