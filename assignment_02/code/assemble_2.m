@@ -1,9 +1,9 @@
-function [Fp, Fm,b] = assemble_2( p,e,t, f, beta, epsilon, delta_t)
+function [A, M, b] = assemble_2( p,e,t, f, beta, epsilon)
 
 I = eye(length(p));
 N = size(p,2);
-Fp = sparse(N,N);
-Fm = sparse(N,N);
+A = sparse(N,N);
+M = sparse(N,N);
 b = zeros(N,1);
 
 for K = 1:size(t,2); % loop over the triangles
@@ -12,15 +12,14 @@ for K = 1:size(t,2); % loop over the triangles
   x = p(1,nodes);
   y = p(2,nodes);
   
-  [AK, bK, BK] = create_AK_bK2(x,y, epsilon, f, beta);
-  Fp(nodes,nodes) = Fp(nodes,nodes) + BK+delta_t/2*AK;
-  Fm(nodes,nodes) = Fm(nodes,nodes) + BK-delta_t/2*AK;
+  [AK, bK, MK] = create_AK_bK2(x,y, epsilon, f, beta);
+  A(nodes,nodes) = A(nodes,nodes) + AK;
+  M(nodes,nodes) = M(nodes,nodes) + MK;
   % add AK(i,j), i,j=1,2,3, to A(nodes(i),nodes(j))
-  b(nodes) = b(nodes) + delta_t/2*bK;
-  
+  b(nodes) = b(nodes)+ bK;
 end
-Fp(e(1,:),:) = I(e(1,:),:); % replace the rows corresponding
-Fm(e(1,:),:) = I(e(1,:),:); % replace the rows corresponding
+%A(e(1,:),:) = I(e(1,:),:); % replace the rows corresponding
+%M(e(1,:),:) = I(e(1,:),:); % replace the rows corresponding
 % to the boundary nodes by corresponding
 % rows of I
 b(e(1,:)) = 0; % put the boundary value into the RHS

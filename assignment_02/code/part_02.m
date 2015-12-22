@@ -1,26 +1,72 @@
 function [  ] = part_02(  )
-  h = 1/16;
-  dt = 0.5*h/(2*pi);
-  [p,e,t] = create_mesh(h);
-  size(p)
-  u = initialize(p);
-  [Fp, Fm, b] = assemble_2(p, e, t, @(x,y) 0, @beta_field, 0.1, dt);
+  %try different h, 1/8, 1/16, 1/32? with different relative dt. plot norm.
+  %problem_02_04()
+%   h = 1/16;
+%   dt = 0.5*h/(2*pi);
+%   [p,e,t] = create_mesh(h);
+%   size(p)
+%   u = initialize(p);
+%   [A, M, b] = assemble_2(p, e, t, @(x,y) 0, @beta_field, 0);
+%   Fp = M+dt/2*A;
+%   Fm = M-dt/2*A;
+%   b = dt/2*b;
+%   figure(1)
+%   make_plot(p,e,t, u)
+%   figure(2)
+%   for i = dt:dt:1+dt/2
+%     u = Fp\(Fm*u+b);
+%     u(e(1,:)) = 0; %force the dirchlet boundary condition.
+%     i
+%   end
+%   make_plot(p,e,t, u)
+%   L2_norm(exact_error(p,u), M)
+%   %F = pdeInterpolant(p,t,u);
+  %interp = @(x,y) evaluate(F,[x;y]);
+  %figure(3)
+  %interp(2,3)
+  %interp(1,-0)
+  %ezcontourf(interp, [-1 1 -1 1])
+  %axis equal
+end
 
-  figure(1)
-  make_plot(p,e,t, u)
-  figure(2)
+function [] = problem_02_04()
+  H = [1/4 1/8 1/16 1/32];
+  h_ref = 1/64;
+  [p,e,t] = create_mesh(h_ref);
+  u = initialize(p);
+  [A, M, b] = assemble_2(p, e, t, @(x,y) 0, @beta_field, 0.1);
+  dt = 0.5*h_ref/(2*pi);
+  Fp = M+dt/2*A;
+  Fm = M-dt/2*A;
   for i = dt:dt:1+dt/2
     u = Fp\(Fm*u+b);
+    u(e(1,:)) = 0; %force the dirchlet boundary condition.
     i
   end
-  make_plot(p,e,t, u)
+  Err = []
   F = pdeInterpolant(p,t,u);
   interp = @(x,y) evaluate(F,[x;y]);
+  for h = H
+    [p,e,t] = create_mesh(h_ref);
+    u = initialize(p);
+    [A, M, b] = assemble_2(p, e, t, @(x,y) 0, @beta_field, 0.1);
+    dt = 0.5*h/(2*pi);
+    Fp = M+dt/2*A;
+    Fm = M-dt/2*A;
+    
+    for i = dt:dt:1+dt/2
+      u = Fp\(Fm*u+b);
+      u(e(1,:)) = 0; %force the dirchlet boundary condition.
+      i
+    end
+    Err = [Err log(L2_norm(abs(approximate_error(p,u, interp)),A))]
+  end
   figure(3)
-  interp(2,3)
-  interp(1,-0)
-  ezcontourf(interp, [-1 1 -1 1])
-  axis equal
+  plot(log(H), Err)
+  hold on;
+  order = polyfit(log(H), Err,1)  % = 1.1894   -0.3067
+  fh = @(x) x*order(1)+order(2);
+  ezplot(fh, [min(log(H)), max(log(H))]);
 end
 
 function [ z ] = f( x, y )
@@ -32,8 +78,26 @@ function [ p,e,t ] = create_mesh( dx )
  [p, e, t] = initmesh(g,'hmax', dx); %create a mesh with max segment size dx.
 end
 
-function [z] = exact(x, y)
-  z = sin(2*pi*x)*sin(2*pi*y);
+function L = L2_norm(e, A)
+  L = sqrt(e'*A*e);
+end
+  
+function [e] = approximate_error(points, solution, approximation)
+  e = zeros(size(points,1),1);
+  for i = 1:size(points,2)
+      x = points(1,i);
+      y = points(2,i);
+      e(i) = approximation(x,y)-solution(i);
+  end
+end
+
+function [e] = exact_error(points,solution)
+  e = zeros(size(points,1),1);
+  for i = 1:size(points,2)
+      x = points(1,i);
+      y = points(2,i);
+      e(i) = u0_field(x,y)-solution(i);
+  end
 end
 
 function u0 = initialize(points)
@@ -53,7 +117,7 @@ function z = u0_field(x, y)
 end
 
 function e = compute_exact(points)
-e = zeros(size(points,1),1);
+  e = zeros(size(points,1),1);
   for i = 1:size(points,2)
       x = points(1,i);
       y = points(2,i);
