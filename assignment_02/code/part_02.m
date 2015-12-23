@@ -1,6 +1,6 @@
 function [  ] = part_02(  )
   %try different h, 1/8, 1/16, 1/32? with different relative dt. plot norm.
-  %problem_02_04()
+  problem_02_02()
 %   h = 1/16;
 %   dt = 0.5*h/(2*pi);
 %   [p,e,t] = create_mesh(h);
@@ -59,7 +59,7 @@ function [] = problem_02_04()
       u(e(1,:)) = 0; %force the dirchlet boundary condition.
       i
     end
-    Err = [Err log(L2_norm(abs(approximate_error(p,u, interp)),A))]
+    Err = [Err log(L2_norm(abs(approximate_error(p,u, interp)),M))]
   end
   figure(3)
   plot(log(H), Err)
@@ -67,6 +67,59 @@ function [] = problem_02_04()
   order = polyfit(log(H), Err,1)  % = 1.1894   -0.3067
   fh = @(x) x*order(1)+order(2);
   ezplot(fh, [min(log(H)), max(log(H))]);
+end
+
+function [] = problem_02_02()
+  h=1/8;
+  [p,e,t] = create_mesh(h);
+  u = initialize(p);
+  [A, M, b] = assemble_2(p, e, t, @(x,y) 0, @beta_field, 0.0);
+  dt = 0.5*h/(2*pi);
+  Fp = M+dt/2*A;
+  Fm = M-dt/2*A;
+  for i = dt:dt:1+dt/2
+    u = Fp\(Fm*u+b);
+    u(e(1,:)) = 0; %force the dirchlet boundary condition.
+  end
+  figure(1);
+  make_plot(p,e,t,u);
+  
+  h=1/16;
+  [p,e,t] = create_mesh(h);
+  u = initialize(p);
+  [A, M, b] = assemble_2(p, e, t, @(x,y) 0, @beta_field, 0.0);
+  dt = 0.5*h/(2*pi);
+  Fp = M+dt/2*A;
+  Fm = M-dt/2*A;
+  for i = dt:dt:1+dt/2
+    u = Fp\(Fm*u+b);
+    u(e(1,:)) = 0; %force the dirchlet boundary condition.
+  end
+  figure(2)
+  make_plot(p,e,t,u);
+  
+  figure(3)
+  hold on;
+  for h = [1/4 1/8 1/12 1/16 1/25 1/32]
+    [p,e,t] = create_mesh(h);
+    u0 = initialize(p);
+    [A, M, b] = assemble_2(p, e, t, @(x,y) 0, @beta_field, 0.0);
+    norm = [];
+    dt_steps = [0.025 0.05 0.075 0.1 0.25 0.5];
+    for dt = h*dt_steps
+      Fp = M+dt/2*A;
+      Fm = M-dt/2*A;
+      u = u0;
+      for i = dt:dt:1+dt/2
+        u = Fp\(Fm*u+b);
+        u(e(1,:)) = 0; %force the dirchlet boundary condition.
+      end
+      err = exact_error(p,u);
+      new_norm = L2_norm(err,M)
+      norm = [norm new_norm];
+    end
+    plot(dt_steps, norm);
+  end
 end
 
 function [ z ] = f( x, y )
